@@ -1,0 +1,294 @@
+import React, { useState, useCallback } from 'react';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { UploadZone } from '@/components/ui/upload-zone';
+import { ColorSwatch } from '@/components/ui/color-swatch';
+import { LoadingSpinner } from '@/components/ui/loading-spinner';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
+import { extractDominantColors, analyzeSkinTone, detectFaceRegion, type SkinToneAnalysis } from '@/lib/color-analysis';
+import { Palette, Sparkles, Shirt, Zap } from 'lucide-react';
+
+export const SkinToneAnalyzer: React.FC = () => {
+  const [uploadedImage, setUploadedImage] = useState<string>('');
+  const [isAnalyzing, setIsAnalyzing] = useState(false);
+  const [analysis, setAnalysis] = useState<SkinToneAnalysis | null>(null);
+  const [error, setError] = useState<string>('');
+
+  const processImage = useCallback(async (file: File) => {
+    setIsAnalyzing(true);
+    setError('');
+    setAnalysis(null);
+
+    try {
+      // Create image element
+      const img = new Image();
+      const canvas = document.createElement('canvas');
+      const ctx = canvas.getContext('2d');
+
+      if (!ctx) {
+        throw new Error('Could not get canvas context');
+      }
+
+      // Load image
+      const imageUrl = URL.createObjectURL(file);
+      setUploadedImage(imageUrl);
+
+      await new Promise((resolve, reject) => {
+        img.onload = resolve;
+        img.onerror = reject;
+        img.src = imageUrl;
+      });
+
+      // Set canvas size
+      canvas.width = img.width;
+      canvas.height = img.height;
+      ctx.drawImage(img, 0, 0);
+
+      // Detect face region (simplified - using center portion)
+      const faceImageData = detectFaceRegion(canvas);
+      
+      if (!faceImageData) {
+        throw new Error('Could not detect face region in the image');
+      }
+
+      // Extract dominant colors
+      const dominantColors = extractDominantColors(faceImageData, 14);
+      
+      if (dominantColors.length === 0) {
+        throw new Error('Could not extract skin tone colors from the image');
+      }
+
+      // Analyze skin tone
+      const skinAnalysis = analyzeSkinTone(dominantColors);
+      setAnalysis(skinAnalysis);
+
+    } catch (err) {
+      console.error('Error processing image:', err);
+      setError(err instanceof Error ? err.message : 'Failed to analyze image');
+    } finally {
+      setIsAnalyzing(false);
+    }
+  }, []);
+
+  const handleImageUpload = useCallback((file: File) => {
+    processImage(file);
+  }, [processImage]);
+
+  const handleRemoveImage = useCallback(() => {
+    setUploadedImage('');
+    setAnalysis(null);
+    setError('');
+  }, []);
+
+  const handleRetry = useCallback(() => {
+    if (uploadedImage) {
+      fetch(uploadedImage)
+        .then(res => res.blob())
+        .then(blob => {
+          const file = new File([blob], 'uploaded-image.jpg', { type: blob.type });
+          processImage(file);
+        })
+        .catch(err => {
+          console.error('Error retrying analysis:', err);
+          setError('Failed to retry analysis');
+        });
+    }
+  }, [uploadedImage, processImage]);
+
+  return (
+    <div className="min-h-screen bg-gradient-subtle">
+      <div className="container mx-auto px-4 py-8">
+        {/* Header */}
+        <div className="text-center mb-8">
+          <div className="flex items-center justify-center gap-3 mb-4">
+            <div className="p-3 bg-gradient-primary rounded-full shadow-soft">
+              <Palette className="h-8 w-8 text-primary-foreground" />
+            </div>
+            <h1 className="text-4xl font-bold bg-gradient-primary bg-clip-text text-transparent">
+              Skin Tone Analyzer
+            </h1>
+          </div>
+          <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
+            Upload your photo to discover your unique skin tone palette and get personalized color recommendations for makeup and clothing.
+          </p>
+        </div>
+
+        <div className="grid gap-8 max-w-6xl mx-auto">
+          {/* Upload Section */}
+          <Card className="shadow-card bg-gradient-card border-0">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Sparkles className="h-5 w-5 text-primary" />
+                Upload Your Photo
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <UploadZone
+                onImageUpload={handleImageUpload}
+                uploadedImage={uploadedImage}
+                onRemoveImage={handleRemoveImage}
+                className="h-64"
+              />
+              
+              {error && (
+                <div className="mt-4 p-4 bg-destructive/10 border border-destructive/20 rounded-lg">
+                  <p className="text-destructive text-sm">{error}</p>
+                  {uploadedImage && (
+                    <Button
+                      onClick={handleRetry}
+                      variant="outline"
+                      size="sm"
+                      className="mt-2"
+                    >
+                      Retry Analysis
+                    </Button>
+                  )}
+                </div>
+              )}
+            </CardContent>
+          </Card>
+
+          {/* Loading State */}
+          {isAnalyzing && (
+            <Card className="shadow-card bg-gradient-card border-0">
+              <CardContent className="py-12">
+                <LoadingSpinner
+                  size="lg"
+                  text="Analyzing your skin tone..."
+                  className="text-center"
+                />
+              </CardContent>
+            </Card>
+          )}
+
+          {/* Results */}
+          {analysis && (
+            <div className="grid gap-6">
+              {/* Skin Tone Type */}
+              <Card className="shadow-card bg-gradient-card border-0">
+                <CardHeader>
+                  <CardTitle className="flex items-center justify-between">
+                    <span className="flex items-center gap-2">
+                      <Zap className="h-5 w-5 text-primary" />
+                      Your Skin Tone Profile
+                    </span>
+                    <Badge 
+                      variant="secondary"
+                      className="text-lg px-4 py-1 bg-gradient-primary text-primary-foreground border-0"
+                    >
+                      {analysis.skinToneType.charAt(0).toUpperCase() + analysis.skinToneType.slice(1)}
+                    </Badge>
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-muted-foreground mb-4">
+                    <strong>Undertone:</strong> {analysis.undertone}
+                  </p>
+                  
+                  {/* Dominant Colors */}
+                  <div className="mb-6">
+                    <h3 className="font-semibold mb-3 flex items-center gap-2">
+                      <Palette className="h-4 w-4" />
+                      Your 14 Dominant Skin Tones
+                    </h3>
+                    <div className="grid grid-cols-7 gap-3">
+                      {analysis.dominantColors.map((color, index) => (
+                        <ColorSwatch
+                          key={index}
+                          color={color}
+                          size="md"
+                          showHex={true}
+                        />
+                      ))}
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* Recommendations */}
+              <div className="grid md:grid-cols-2 gap-6">
+                {/* Clothing Colors */}
+                <Card className="shadow-card bg-gradient-card border-0">
+                  <CardHeader>
+                    <CardTitle className="flex items-center gap-2">
+                      <Shirt className="h-5 w-5 text-primary" />
+                      Perfect Clothing Colors
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="grid grid-cols-3 gap-3">
+                      {analysis.recommendations.clothing.map((color, index) => (
+                        <ColorSwatch
+                          key={index}
+                          color={color}
+                          size="lg"
+                          showHex={true}
+                        />
+                      ))}
+                    </div>
+                  </CardContent>
+                </Card>
+
+                {/* Makeup Colors */}
+                <Card className="shadow-card bg-gradient-card border-0">
+                  <CardHeader>
+                    <CardTitle className="flex items-center gap-2">
+                      <Sparkles className="h-5 w-5 text-primary" />
+                      Makeup & Beauty Colors
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-6">
+                    {/* Base Makeup */}
+                    <div>
+                      <h4 className="font-medium mb-2 text-sm text-muted-foreground">Foundation & Base</h4>
+                      <div className="grid grid-cols-2 gap-2">
+                        {analysis.recommendations.makeup.map((color, index) => (
+                          <ColorSwatch
+                            key={index}
+                            color={color}
+                            size="md"
+                            showHex={true}
+                          />
+                        ))}
+                      </div>
+                    </div>
+
+                    {/* Lip Colors */}
+                    <div>
+                      <h4 className="font-medium mb-2 text-sm text-muted-foreground">Lip Colors</h4>
+                      <div className="grid grid-cols-2 gap-2">
+                        {analysis.recommendations.lipColors.map((color, index) => (
+                          <ColorSwatch
+                            key={index}
+                            color={color}
+                            size="md"
+                            showHex={true}
+                          />
+                        ))}
+                      </div>
+                    </div>
+
+                    {/* Eyeshadow */}
+                    <div>
+                      <h4 className="font-medium mb-2 text-sm text-muted-foreground">Eyeshadow Palette</h4>
+                      <div className="grid grid-cols-2 gap-2">
+                        {analysis.recommendations.eyeshadow.map((color, index) => (
+                          <ColorSwatch
+                            key={index}
+                            color={color}
+                            size="md"
+                            showHex={true}
+                          />
+                        ))}
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              </div>
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+};
