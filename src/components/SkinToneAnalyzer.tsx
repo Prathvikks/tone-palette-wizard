@@ -105,11 +105,11 @@ export const SkinToneAnalyzer: React.FC = () => {
               <Palette className="h-8 w-8 text-primary-foreground" />
             </div>
             <h1 className="text-4xl font-bold bg-gradient-primary bg-clip-text text-transparent">
-              Skin Tone Analyzer
+              ChromaTone
             </h1>
           </div>
           <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-            Upload your photo to discover your unique skin tone palette and get personalized color recommendations for makeup and clothing.
+            Your AI personal styling assistant. Upload your photo to discover your skin tone and get expert outfit color palette recommendations.
           </p>
         </div>
 
@@ -164,43 +164,94 @@ export const SkinToneAnalyzer: React.FC = () => {
           {/* Results */}
           {analysis && (
             <div className="grid gap-6">
-              {/* Skin Tone Type */}
+              {/* Skin Tone Detection */}
               <Card className="shadow-card bg-gradient-card border-0">
                 <CardHeader>
-                  <CardTitle className="flex items-center justify-between">
-                    <span className="flex items-center gap-2">
-                      <Zap className="h-5 w-5 text-primary" />
-                      Your Skin Tone Profile
-                    </span>
-                    <Badge 
-                      variant="secondary"
-                      className="text-lg px-4 py-1 bg-gradient-primary text-primary-foreground border-0"
-                    >
-                      {analysis.skinToneType.charAt(0).toUpperCase() + analysis.skinToneType.slice(1)}
-                    </Badge>
+                  <CardTitle className="flex items-center gap-2">
+                    <Zap className="h-5 w-5 text-primary" />
+                    Skin Tone Detected
                   </CardTitle>
                 </CardHeader>
-                <CardContent>
-                  <p className="text-muted-foreground mb-4">
-                    <strong>Undertone:</strong> {analysis.undertone}
-                  </p>
+                <CardContent className="space-y-4">
+                  <div className="flex items-center justify-between p-4 bg-muted/50 rounded-lg">
+                    <div>
+                      <h3 className="text-xl font-bold">{analysis.skinToneLevel.name}</h3>
+                      <p className="text-muted-foreground">
+                        {analysis.skinToneLevel.hex} • Level {analysis.skinToneLevel.number}
+                      </p>
+                      <p className="text-sm text-muted-foreground mt-1">
+                        <strong>Undertone:</strong> {analysis.undertone} ({analysis.skinToneType})
+                      </p>
+                    </div>
+                    <ColorSwatch
+                      color={analysis.skinToneLevel.hex}
+                      size="lg"
+                      showHex={false}
+                    />
+                  </div>
                   
                   {/* Dominant Colors */}
-                  <div className="mb-6">
-                    <h3 className="font-semibold mb-3 flex items-center gap-2">
+                  <div>
+                    <h4 className="font-semibold mb-3 flex items-center gap-2">
                       <Palette className="h-4 w-4" />
-                      Your 14 Dominant Skin Tones
-                    </h3>
-                    <div className="grid grid-cols-7 gap-3">
+                      14 Extracted Skin Tones
+                    </h4>
+                    <div className="grid grid-cols-7 gap-2">
                       {analysis.dominantColors.map((color, index) => (
                         <ColorSwatch
                           key={index}
                           color={color}
-                          size="md"
+                          size="sm"
                           showHex={true}
                         />
                       ))}
                     </div>
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* Outfit Palettes */}
+              <Card className="shadow-card bg-gradient-card border-0">
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <Shirt className="h-5 w-5 text-primary" />
+                    Recommended Outfit Palettes
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-6">
+                  {analysis.outfitPalettes.map((palette, index) => (
+                    <div key={index} className="space-y-3">
+                      <h4 className="font-medium text-lg">{palette.name}</h4>
+                      <div className="grid grid-cols-5 gap-3">
+                        {palette.colors.map((color, colorIndex) => (
+                          <ColorSwatch
+                            key={colorIndex}
+                            color={color}
+                            size="lg"
+                            showHex={true}
+                          />
+                        ))}
+                      </div>
+                    </div>
+                  ))}
+                </CardContent>
+              </Card>
+
+              {/* Outfit Examples */}
+              <Card className="shadow-card bg-gradient-card border-0">
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <Sparkles className="h-5 w-5 text-primary" />
+                    Example Outfit Ideas
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-3">
+                    {analysis.outfitExamples.map((example, index) => (
+                      <div key={index} className="p-4 bg-muted/50 rounded-lg">
+                        <p className="text-foreground font-medium">{example}</p>
+                      </div>
+                    ))}
                   </div>
                 </CardContent>
               </Card>

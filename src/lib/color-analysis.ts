@@ -4,6 +4,16 @@ export interface SkinToneAnalysis {
   dominantColors: string[];
   skinToneType: 'warm' | 'cool' | 'neutral';
   undertone: string;
+  skinToneLevel: {
+    name: string;
+    hex: string;
+    number: number;
+  };
+  outfitPalettes: {
+    name: string;
+    colors: string[];
+  }[];
+  outfitExamples: string[];
   recommendations: {
     clothing: string[];
     makeup: string[];
@@ -117,6 +127,20 @@ export function extractDominantColors(imageData: ImageData, k: number = 14): str
   return centroids.map(([r, g, b]) => rgbToHex(r, g, b));
 }
 
+// Skin tone scale (lightest to darkest)
+const SKIN_TONE_SCALE = [
+  { name: 'Porcelain', hex: '#f6ede4', number: 1 },
+  { name: 'Ivory', hex: '#f3e7db', number: 2 },
+  { name: 'Light Beige', hex: '#f7ead0', number: 3 },
+  { name: 'Warm Beige', hex: '#eadaba', number: 4 },
+  { name: 'Golden Beige', hex: '#d7bd96', number: 5 },
+  { name: 'Tan', hex: '#a07e56', number: 6 },
+  { name: 'Medium Brown', hex: '#825c43', number: 7 },
+  { name: 'Deep Brown', hex: '#604134', number: 8 },
+  { name: 'Dark Espresso', hex: '#3a312a', number: 9 },
+  { name: 'Ebony', hex: '#292421', number: 10 }
+];
+
 // Analyze skin tone type based on dominant colors
 export function analyzeSkinTone(dominantColors: string[]): SkinToneAnalysis {
   const colorHSLs = dominantColors.map(hex => {
@@ -126,9 +150,24 @@ export function analyzeSkinTone(dominantColors: string[]): SkinToneAnalysis {
     return rgbToHsl(r, g, b);
   });
 
+  // Calculate average lightness to map to skin tone scale
+  const avgLightness = colorHSLs.reduce((sum, [, , l]) => sum + l, 0) / colorHSLs.length;
+  
+  // Map to skin tone scale based on lightness
+  let skinToneLevel;
+  if (avgLightness >= 85) skinToneLevel = SKIN_TONE_SCALE[0]; // Porcelain
+  else if (avgLightness >= 80) skinToneLevel = SKIN_TONE_SCALE[1]; // Ivory
+  else if (avgLightness >= 75) skinToneLevel = SKIN_TONE_SCALE[2]; // Light Beige
+  else if (avgLightness >= 70) skinToneLevel = SKIN_TONE_SCALE[3]; // Warm Beige
+  else if (avgLightness >= 65) skinToneLevel = SKIN_TONE_SCALE[4]; // Golden Beige
+  else if (avgLightness >= 55) skinToneLevel = SKIN_TONE_SCALE[5]; // Tan
+  else if (avgLightness >= 45) skinToneLevel = SKIN_TONE_SCALE[6]; // Medium Brown
+  else if (avgLightness >= 35) skinToneLevel = SKIN_TONE_SCALE[7]; // Deep Brown
+  else if (avgLightness >= 25) skinToneLevel = SKIN_TONE_SCALE[8]; // Dark Espresso
+  else skinToneLevel = SKIN_TONE_SCALE[9]; // Ebony
+
   // Determine undertone based on hue analysis
   const avgHue = colorHSLs.reduce((sum, [h]) => sum + h, 0) / colorHSLs.length;
-  const avgSaturation = colorHSLs.reduce((sum, [, s]) => sum + s, 0) / colorHSLs.length;
 
   let skinToneType: 'warm' | 'cool' | 'neutral';
   let undertone: string;
@@ -146,11 +185,16 @@ export function analyzeSkinTone(dominantColors: string[]): SkinToneAnalysis {
 
   // Generate recommendations based on skin tone
   const recommendations = generateRecommendations(skinToneType);
+  const outfitPalettes = generateOutfitPalettes(skinToneType, skinToneLevel.number);
+  const outfitExamples = generateOutfitExamples(skinToneType, skinToneLevel.number);
 
   return {
     dominantColors,
     skinToneType,
     undertone,
+    skinToneLevel,
+    outfitPalettes,
+    outfitExamples,
     recommendations
   };
 }
@@ -178,6 +222,71 @@ function generateRecommendations(skinToneType: 'warm' | 'cool' | 'neutral') {
   };
 
   return recommendations[skinToneType];
+}
+
+function generateOutfitPalettes(skinToneType: 'warm' | 'cool' | 'neutral', skinLevel: number) {
+  const basePalettes = {
+    warm: [
+      { name: 'Earth Tones', colors: ['#8B4513', '#D2691E', '#F4A460', '#DEB887', '#FFFFFF'] },
+      { name: 'Autumn Spice', colors: ['#B22222', '#FF8C00', '#DAA520', '#CD853F', '#F5F5DC'] },
+      { name: 'Golden Hour', colors: ['#FFD700', '#FF6347', '#CD853F', '#F4A460', '#FFFAF0'] },
+      { name: 'Desert Sunset', colors: ['#FF4500', '#FF8C00', '#DEB887', '#F5DEB3', '#FFFFFF'] }
+    ],
+    cool: [
+      { name: 'Ocean Blues', colors: ['#000080', '#4682B4', '#87CEEB', '#E0F6FF', '#FFFFFF'] },
+      { name: 'Berry Elegance', colors: ['#8B008B', '#DC143C', '#FFB6C1', '#F8F8FF', '#000000'] },
+      { name: 'Winter Frost', colors: ['#2F4F4F', '#708090', '#B0C4DE', '#F0F8FF', '#FFFFFF'] },
+      { name: 'Jewel Tones', colors: ['#4B0082', '#008B8B', '#9370DB', '#E6E6FA', '#FFFFFF'] }
+    ],
+    neutral: [
+      { name: 'Classic Neutrals', colors: ['#000000', '#696969', '#D3D3D3', '#F5F5F5', '#FFFFFF'] },
+      { name: 'Sage & Stone', colors: ['#556B2F', '#808080', '#D2B48C', '#F5F5DC', '#FFFFFF'] },
+      { name: 'Modern Minimalist', colors: ['#2F4F4F', '#778899', '#B0C4DE', '#F8F8FF', '#FFFFFF'] },
+      { name: 'Warm Greys', colors: ['#8B4513', '#696969', '#BC8F8F', '#F5F5DC', '#FFFFFF'] }
+    ]
+  };
+
+  // Adjust palettes based on skin level (lighter vs darker tones)
+  let palettes = basePalettes[skinToneType];
+  
+  // For darker skin tones (7-10), add richer, more vibrant options
+  if (skinLevel >= 7) {
+    if (skinToneType === 'warm') {
+      palettes.push({ name: 'Rich Jewels', colors: ['#800080', '#FF6347', '#DAA520', '#F4A460', '#FFFAF0'] });
+    } else if (skinToneType === 'cool') {
+      palettes.push({ name: 'Royal Blues', colors: ['#000080', '#8B008B', '#DC143C', '#FFB6C1', '#FFFFFF'] });
+    }
+  }
+  
+  return palettes.slice(0, 4); // Return 4 palettes
+}
+
+function generateOutfitExamples(skinToneType: 'warm' | 'cool' | 'neutral', skinLevel: number) {
+  const examples = {
+    warm: [
+      "Terracotta blazer with cream trousers and gold accessories",
+      "Olive green sweater with dark denim jeans and brown leather boots"
+    ],
+    cool: [
+      "Navy blue blouse with grey tailored pants and silver jewelry", 
+      "Emerald green dress with black heels and pearl accessories"
+    ],
+    neutral: [
+      "Charcoal grey suit with white shirt and black leather shoes",
+      "Sage green cardigan with beige chinos and tan loafers"
+    ]
+  };
+
+  // Add darker skin tone specific examples
+  if (skinLevel >= 7) {
+    if (skinToneType === 'warm') {
+      examples.warm.push("Bold orange top with dark chocolate brown pants and gold statement jewelry");
+    } else if (skinToneType === 'cool') {
+      examples.cool.push("Rich purple blouse with black trousers and silver metallic accessories");
+    }
+  }
+
+  return examples[skinToneType].slice(0, 2);
 }
 
 // Detect face region in image (simplified approach)
