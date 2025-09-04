@@ -9,13 +9,13 @@ export interface SkinToneAnalysis {
     hex: string;
     number: number;
   };
-  outfitPalettes: {
+  upperWearPalettes: {
     name: string;
     colors: string[];
   }[];
   outfitExamples: string[];
-  recommendations: {
-    clothing: string[];
+  upperWearColors: string[];
+  recommendations?: {
     makeup: string[];
     lipColors: string[];
     eyeshadow: string[];
@@ -184,37 +184,36 @@ export function analyzeSkinTone(dominantColors: string[]): SkinToneAnalysis {
   }
 
   // Generate recommendations based on skin tone
-  const recommendations = generateRecommendations(skinToneType);
-  const outfitPalettes = generateOutfitPalettes(skinToneType, skinToneLevel.number);
-  const outfitExamples = generateOutfitExamples(skinToneType, skinToneLevel.number);
+  const recommendations = generateMakeupRecommendations(skinToneType);
+  const upperWearPalettes = generateUpperWearPalettes(skinToneType, skinToneLevel.number);
+  const outfitExamples = generateUpperWearExamples(skinToneType, skinToneLevel.number);
+  const upperWearColors = generateUpperWearColors(skinToneType);
 
   return {
     dominantColors,
     skinToneType,
     undertone,
     skinToneLevel,
-    outfitPalettes,
+    upperWearPalettes,
     outfitExamples,
+    upperWearColors,
     recommendations
   };
 }
 
-function generateRecommendations(skinToneType: 'warm' | 'cool' | 'neutral') {
+function generateMakeupRecommendations(skinToneType: 'warm' | 'cool' | 'neutral') {
   const recommendations = {
     warm: {
-      clothing: ['#8B4513', '#CD853F', '#DEB887', '#F4A460', '#D2691E', '#FF8C00'],
       makeup: ['#CD853F', '#DEB887', '#F4A460', '#DDBF94'],
       lipColors: ['#CD5C5C', '#E9967A', '#FA8072', '#FF6347'],
       eyeshadow: ['#8B4513', '#CD853F', '#DEB887', '#D2691E']
     },
     cool: {
-      clothing: ['#4682B4', '#6495ED', '#87CEEB', '#B0C4DE', '#778899', '#2F4F4F'],
       makeup: ['#F8F8FF', '#E6E6FA', '#D8BFD8', '#DDA0DD'],
       lipColors: ['#DC143C', '#B22222', '#8B0000', '#FF1493'],
       eyeshadow: ['#4682B4', '#6495ED', '#9370DB', '#8A2BE2']
     },
     neutral: {
-      clothing: ['#696969', '#708090', '#778899', '#2F4F4F', '#556B2F', '#8B4513'],
       makeup: ['#F5F5DC', '#FFF8DC', '#FAEBD7', '#F0E68C'],
       lipColors: ['#CD5C5C', '#BC8F8F', '#F08080', '#E9967A'],
       eyeshadow: ['#CD853F', '#BC8F8F', '#D2B48C', '#DEB887']
@@ -224,65 +223,67 @@ function generateRecommendations(skinToneType: 'warm' | 'cool' | 'neutral') {
   return recommendations[skinToneType];
 }
 
-function generateOutfitPalettes(skinToneType: 'warm' | 'cool' | 'neutral', skinLevel: number) {
+function generateUpperWearColors(skinToneType: 'warm' | 'cool' | 'neutral') {
+  const upperWearColors = {
+    warm: ['#8B4513', '#CD853F', '#DEB887', '#FF8C00', '#D2691E', '#DAA520'],
+    cool: ['#000080', '#4682B4', '#6495ED', '#2F4F4F', '#708090', '#8B008B'],
+    neutral: ['#000000', '#696969', '#556B2F', '#8B4513', '#2F4F4F', '#800000']
+  };
+
+  return upperWearColors[skinToneType];
+}
+
+function generateUpperWearPalettes(skinToneType: 'warm' | 'cool' | 'neutral', skinLevel: number) {
   const basePalettes = {
     warm: [
-      { name: 'Earth Tones', colors: ['#8B4513', '#D2691E', '#F4A460', '#DEB887', '#FFFFFF'] },
-      { name: 'Autumn Spice', colors: ['#B22222', '#FF8C00', '#DAA520', '#CD853F', '#F5F5DC'] },
-      { name: 'Golden Hour', colors: ['#FFD700', '#FF6347', '#CD853F', '#F4A460', '#FFFAF0'] },
-      { name: 'Desert Sunset', colors: ['#FF4500', '#FF8C00', '#DEB887', '#F5DEB3', '#FFFFFF'] }
+      { name: 'Earth Tone Shirts', colors: ['#8B4513', '#D2691E', '#CD853F', '#DEB887', '#F4A460'] },
+      { name: 'Autumn Tops', colors: ['#B22222', '#FF8C00', '#DAA520', '#CD853F', '#D2B48C'] },
+      { name: 'Golden Hour Blouses', colors: ['#FFD700', '#FF6347', '#CD853F', '#F4A460', '#DEB887'] },
+      { name: 'Warm Coral Collection', colors: ['#FF7F50', '#FA8072', '#E9967A', '#F4A460', '#DEB887'] },
+      { name: 'Spice Tone Shirts', colors: ['#D2691E', '#CD853F', '#B22222', '#A0522D', '#8B4513'] }
     ],
     cool: [
-      { name: 'Ocean Blues', colors: ['#000080', '#4682B4', '#87CEEB', '#E0F6FF', '#FFFFFF'] },
-      { name: 'Berry Elegance', colors: ['#8B008B', '#DC143C', '#FFB6C1', '#F8F8FF', '#000000'] },
-      { name: 'Winter Frost', colors: ['#2F4F4F', '#708090', '#B0C4DE', '#F0F8FF', '#FFFFFF'] },
-      { name: 'Jewel Tones', colors: ['#4B0082', '#008B8B', '#9370DB', '#E6E6FA', '#FFFFFF'] }
+      { name: 'Ocean Blue Shirts', colors: ['#000080', '#4682B4', '#6495ED', '#87CEEB', '#B0C4DE'] },
+      { name: 'Berry Tone Tops', colors: ['#8B008B', '#DC143C', '#B22222', '#800080', '#9932CC'] },
+      { name: 'Winter Frost Blouses', colors: ['#2F4F4F', '#708090', '#4682B4', '#6495ED', '#87CEEB'] },
+      { name: 'Jewel Tone Collection', colors: ['#4B0082', '#008B8B', '#0000CD', '#8B008B', '#006400'] },
+      { name: 'Cool Elegance', colors: ['#191970', '#483D8B', '#6A5ACD', '#9370DB', '#8A2BE2'] }
     ],
     neutral: [
-      { name: 'Classic Neutrals', colors: ['#000000', '#696969', '#D3D3D3', '#F5F5F5', '#FFFFFF'] },
-      { name: 'Sage & Stone', colors: ['#556B2F', '#808080', '#D2B48C', '#F5F5DC', '#FFFFFF'] },
-      { name: 'Modern Minimalist', colors: ['#2F4F4F', '#778899', '#B0C4DE', '#F8F8FF', '#FFFFFF'] },
-      { name: 'Warm Greys', colors: ['#8B4513', '#696969', '#BC8F8F', '#F5F5DC', '#FFFFFF'] }
+      { name: 'Classic Neutrals', colors: ['#000000', '#696969', '#2F4F4F', '#708090', '#778899'] },
+      { name: 'Sage Collection', colors: ['#556B2F', '#808080', '#6B8E23', '#9ACD32', '#8FBC8F'] },
+      { name: 'Modern Minimalist', colors: ['#2F4F4F', '#778899', '#708090', '#696969', '#A9A9A9'] },
+      { name: 'Warm Earth Tones', colors: ['#8B4513', '#A0522D', '#CD853F', '#D2B48C', '#DEB887'] },
+      { name: 'Sophisticated Greys', colors: ['#2F4F4F', '#696969', '#778899', '#708090', '#DCDCDC'] }
     ]
   };
 
-  // Adjust palettes based on skin level (lighter vs darker tones)
-  let palettes = basePalettes[skinToneType];
-  
-  // For darker skin tones (7-10), add richer, more vibrant options
-  if (skinLevel >= 7) {
-    if (skinToneType === 'warm') {
-      palettes.push({ name: 'Rich Jewels', colors: ['#800080', '#FF6347', '#DAA520', '#F4A460', '#FFFAF0'] });
-    } else if (skinToneType === 'cool') {
-      palettes.push({ name: 'Royal Blues', colors: ['#000080', '#8B008B', '#DC143C', '#FFB6C1', '#FFFFFF'] });
-    }
-  }
-  
-  return palettes.slice(0, 4); // Return 4 palettes
+  // Return top 5 palettes for upper wear
+  return basePalettes[skinToneType];
 }
 
-function generateOutfitExamples(skinToneType: 'warm' | 'cool' | 'neutral', skinLevel: number) {
+function generateUpperWearExamples(skinToneType: 'warm' | 'cool' | 'neutral', skinLevel: number) {
   const examples = {
     warm: [
-      "Terracotta blazer with cream trousers and gold accessories",
-      "Olive green sweater with dark denim jeans and brown leather boots"
+      "Terracotta blouse with black trousers and gold accessories",
+      "Burnt orange sweater with dark denim jeans"
     ],
     cool: [
-      "Navy blue blouse with grey tailored pants and silver jewelry", 
-      "Emerald green dress with black heels and pearl accessories"
+      "Navy blue shirt with beige chinos and silver watch", 
+      "Emerald green top with white jeans and pearl necklace"
     ],
     neutral: [
-      "Charcoal grey suit with white shirt and black leather shoes",
-      "Sage green cardigan with beige chinos and tan loafers"
+      "Charcoal grey shirt with dark denim and black leather belt",
+      "Sage green cardigan with cream-colored pants"
     ]
   };
 
   // Add darker skin tone specific examples
   if (skinLevel >= 7) {
     if (skinToneType === 'warm') {
-      examples.warm.push("Bold orange top with dark chocolate brown pants and gold statement jewelry");
+      examples.warm.push("Bold coral top with black wide-leg pants and gold jewelry");
     } else if (skinToneType === 'cool') {
-      examples.cool.push("Rich purple blouse with black trousers and silver metallic accessories");
+      examples.cool.push("Rich purple blouse with white tailored pants and silver accessories");
     }
   }
 

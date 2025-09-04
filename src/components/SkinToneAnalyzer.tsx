@@ -189,37 +189,19 @@ export const SkinToneAnalyzer: React.FC = () => {
                       showHex={false}
                     />
                   </div>
-                  
-                  {/* Dominant Colors */}
-                  <div>
-                    <h4 className="font-semibold mb-3 flex items-center gap-2">
-                      <Palette className="h-4 w-4" />
-                      14 Extracted Skin Tones
-                    </h4>
-                    <div className="grid grid-cols-7 gap-2">
-                      {analysis.dominantColors.map((color, index) => (
-                        <ColorSwatch
-                          key={index}
-                          color={color}
-                          size="sm"
-                          showHex={true}
-                        />
-                      ))}
-                    </div>
-                  </div>
                 </CardContent>
               </Card>
 
-              {/* Outfit Palettes */}
+              {/* Upper Wear Palettes */}
               <Card className="shadow-card bg-gradient-card border-0">
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2">
                     <Shirt className="h-5 w-5 text-primary" />
-                    Recommended Outfit Palettes
+                    Recommended Upper Wear Palettes (Top 5)
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-6">
-                  {analysis.outfitPalettes.map((palette, index) => (
+                  {analysis.upperWearPalettes.map((palette, index) => (
                     <div key={index} className="space-y-3">
                       <h4 className="font-medium text-lg">{palette.name}</h4>
                       <div className="grid grid-cols-5 gap-3">
@@ -256,19 +238,18 @@ export const SkinToneAnalyzer: React.FC = () => {
                 </CardContent>
               </Card>
 
-              {/* Recommendations */}
+              {/* Perfect Upper Wear Colors */}
               <div className="grid md:grid-cols-2 gap-6">
-                {/* Clothing Colors */}
                 <Card className="shadow-card bg-gradient-card border-0">
                   <CardHeader>
                     <CardTitle className="flex items-center gap-2">
                       <Shirt className="h-5 w-5 text-primary" />
-                      Perfect Clothing Colors
+                      Perfect Upper Wear Colors
                     </CardTitle>
                   </CardHeader>
                   <CardContent>
                     <div className="grid grid-cols-3 gap-3">
-                      {analysis.recommendations.clothing.map((color, index) => (
+                      {analysis.upperWearColors.map((color, index) => (
                         <ColorSwatch
                           key={index}
                           color={color}
@@ -280,14 +261,15 @@ export const SkinToneAnalyzer: React.FC = () => {
                   </CardContent>
                 </Card>
 
-                {/* Makeup Colors */}
-                <Card className="shadow-card bg-gradient-card border-0">
-                  <CardHeader>
-                    <CardTitle className="flex items-center gap-2">
-                      <Sparkles className="h-5 w-5 text-primary" />
-                      Makeup & Beauty Colors
-                    </CardTitle>
-                  </CardHeader>
+                {/* Makeup Colors - Optional */}
+                {analysis.recommendations && (
+                  <Card className="shadow-card bg-gradient-card border-0">
+                    <CardHeader>
+                      <CardTitle className="flex items-center gap-2">
+                        <Sparkles className="h-5 w-5 text-primary" />
+                        Optional Makeup & Beauty Colors
+                      </CardTitle>
+                    </CardHeader>
                   <CardContent className="space-y-6">
                     {/* Base Makeup */}
                     <div>
@@ -335,6 +317,7 @@ export const SkinToneAnalyzer: React.FC = () => {
                     </div>
                   </CardContent>
                 </Card>
+                )}
               </div>
             </div>
           )}
