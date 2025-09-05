@@ -141,6 +141,58 @@ const SKIN_TONE_SCALE = [
   { name: 'Ebony', hex: '#292421', number: 10 }
 ];
 
+// Color name mapping for human-friendly display
+const COLOR_NAMES: { [key: string]: string } = {
+  '#8B4513': 'Saddle Brown',
+  '#CD853F': 'Peru',
+  '#DEB887': 'Burlywood',
+  '#FF8C00': 'Dark Orange',
+  '#D2691E': 'Chocolate',
+  '#DAA520': 'Goldenrod',
+  '#000080': 'Navy Blue',
+  '#4682B4': 'Steel Blue',
+  '#6495ED': 'Cornflower Blue',
+  '#2F4F4F': 'Dark Slate Gray',
+  '#708090': 'Slate Gray',
+  '#8B008B': 'Dark Magenta',
+  '#000000': 'Black',
+  '#696969': 'Dim Gray',
+  '#556B2F': 'Dark Olive Green',
+  '#800000': 'Maroon',
+  '#B22222': 'Fire Brick',
+  '#FF6347': 'Tomato',
+  '#FF7F50': 'Coral',
+  '#FA8072': 'Salmon',
+  '#E9967A': 'Dark Salmon',
+  '#F4A460': 'Sandy Brown',
+  '#87CEEB': 'Sky Blue',
+  '#B0C4DE': 'Light Steel Blue',
+  '#DC143C': 'Crimson',
+  '#800080': 'Purple',
+  '#9932CC': 'Dark Orchid',
+  '#4B0082': 'Indigo',
+  '#008B8B': 'Dark Cyan',
+  '#0000CD': 'Medium Blue',
+  '#006400': 'Dark Green',
+  '#191970': 'Midnight Blue',
+  '#483D8B': 'Dark Slate Blue',
+  '#6A5ACD': 'Slate Blue',
+  '#9370DB': 'Medium Purple',
+  '#8A2BE2': 'Blue Violet',
+  '#778899': 'Light Slate Gray',
+  '#6B8E23': 'Olive Drab',
+  '#9ACD32': 'Yellow Green',
+  '#8FBC8F': 'Dark Sea Green',
+  '#A0522D': 'Sienna',
+  '#D2B48C': 'Tan',
+  '#A9A9A9': 'Dark Gray',
+  '#DCDCDC': 'Gainsboro'
+};
+
+function hexToColorName(hex: string): string {
+  return COLOR_NAMES[hex] || hex;
+}
+
 // Analyze skin tone type based on dominant colors
 export function analyzeSkinTone(dominantColors: string[]): SkinToneAnalysis {
   const colorHSLs = dominantColors.map(hex => {
@@ -185,19 +237,22 @@ export function analyzeSkinTone(dominantColors: string[]): SkinToneAnalysis {
 
   // Generate recommendations based on skin tone
   const recommendations = generateMakeupRecommendations(skinToneType);
-  const upperWearPalettes = generateUpperWearPalettes(skinToneType, skinToneLevel.number);
   const outfitExamples = generateUpperWearExamples(skinToneType, skinToneLevel.number);
-  const upperWearColors = generateUpperWearColors(skinToneType);
+  const upperWearColors = generateFriendlyUpperWearColors(skinToneType);
 
   return {
     dominantColors,
     skinToneType,
     undertone,
     skinToneLevel,
-    upperWearPalettes,
+    upperWearPalettes: [], // Removed as per requirements
     outfitExamples,
     upperWearColors,
-    recommendations
+    recommendations: {
+      makeup: generateFriendlyMakeupColors(skinToneType, 'makeup'),
+      lipColors: generateFriendlyMakeupColors(skinToneType, 'lipColors'),
+      eyeshadow: generateFriendlyMakeupColors(skinToneType, 'eyeshadow')
+    }
   };
 }
 
@@ -223,14 +278,45 @@ function generateMakeupRecommendations(skinToneType: 'warm' | 'cool' | 'neutral'
   return recommendations[skinToneType];
 }
 
-function generateUpperWearColors(skinToneType: 'warm' | 'cool' | 'neutral') {
+function generateFriendlyUpperWearColors(skinToneType: 'warm' | 'cool' | 'neutral'): string[] {
   const upperWearColors = {
-    warm: ['#8B4513', '#CD853F', '#DEB887', '#FF8C00', '#D2691E', '#DAA520'],
-    cool: ['#000080', '#4682B4', '#6495ED', '#2F4F4F', '#708090', '#8B008B'],
-    neutral: ['#000000', '#696969', '#556B2F', '#8B4513', '#2F4F4F', '#800000']
+    warm: [
+      'Warm Brown', 'Terracotta', 'Camel', 'Burnt Orange', 'Mustard Yellow',
+      'Rust Red', 'Golden Beige', 'Coral Pink', 'Olive Green', 'Cream White'
+    ],
+    cool: [
+      'Navy Blue', 'Crisp White', 'Steel Blue', 'Charcoal Grey', 'Emerald Green',
+      'Royal Purple', 'Cool Pink', 'Silver Grey', 'Icy Blue', 'Deep Teal'
+    ],
+    neutral: [
+      'Classic Black', 'Pure White', 'Medium Grey', 'Sage Green', 'Taupe Brown',
+      'Soft Beige', 'Dusty Rose', 'Slate Blue', 'Warm Ivory', 'Mushroom Grey'
+    ]
   };
 
   return upperWearColors[skinToneType];
+}
+
+function generateFriendlyMakeupColors(skinToneType: 'warm' | 'cool' | 'neutral', category: string): string[] {
+  const makeupColors = {
+    warm: {
+      makeup: ['Warm Honey', 'Golden Beige', 'Peach Nude', 'Caramel'],
+      lipColors: ['Coral Pink', 'Warm Rose', 'Peach Salmon', 'Orange Red'],
+      eyeshadow: ['Bronze Brown', 'Golden Brown', 'Warm Taupe', 'Copper']
+    },
+    cool: {
+      makeup: ['Cool Ivory', 'Rose Beige', 'Pink Nude', 'Lavender Pink'],
+      lipColors: ['Cherry Red', 'Berry Pink', 'Cool Rose', 'Magenta'],
+      eyeshadow: ['Cool Blue', 'Lavender', 'Purple', 'Silver Grey']
+    },
+    neutral: {
+      makeup: ['Natural Beige', 'Soft Ivory', 'Neutral Sand', 'Light Tan'],
+      lipColors: ['Neutral Rose', 'Soft Pink', 'Mauve', 'Peachy Pink'],
+      eyeshadow: ['Neutral Brown', 'Soft Taupe', 'Light Bronze', 'Warm Grey']
+    }
+  };
+
+  return (makeupColors[skinToneType] as any)[category] || [];
 }
 
 function generateUpperWearPalettes(skinToneType: 'warm' | 'cool' | 'neutral', skinLevel: number) {

@@ -192,32 +192,6 @@ export const SkinToneAnalyzer: React.FC = () => {
                 </CardContent>
               </Card>
 
-              {/* Upper Wear Palettes */}
-              <Card className="shadow-card bg-gradient-card border-0">
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <Shirt className="h-5 w-5 text-primary" />
-                    Recommended Upper Wear Palettes (Top 5)
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-6">
-                  {analysis.upperWearPalettes.map((palette, index) => (
-                    <div key={index} className="space-y-3">
-                      <h4 className="font-medium text-lg">{palette.name}</h4>
-                      <div className="grid grid-cols-5 gap-3">
-                        {palette.colors.map((color, colorIndex) => (
-                          <ColorSwatch
-                            key={colorIndex}
-                            color={color}
-                            size="lg"
-                            showHex={true}
-                          />
-                        ))}
-                      </div>
-                    </div>
-                  ))}
-                </CardContent>
-              </Card>
 
               {/* Outfit Examples */}
               <Card className="shadow-card bg-gradient-card border-0">
@@ -270,52 +244,43 @@ export const SkinToneAnalyzer: React.FC = () => {
                         Optional Makeup & Beauty Colors
                       </CardTitle>
                     </CardHeader>
-                  <CardContent className="space-y-6">
-                    {/* Base Makeup */}
-                    <div>
-                      <h4 className="font-medium mb-2 text-sm text-muted-foreground">Foundation & Base</h4>
-                      <div className="grid grid-cols-2 gap-2">
-                        {analysis.recommendations.makeup.map((color, index) => (
-                          <ColorSwatch
-                            key={index}
-                            color={color}
-                            size="md"
-                            showHex={true}
-                          />
-                        ))}
-                      </div>
-                    </div>
+                   <CardContent className="space-y-6">
+                     {/* Base Makeup */}
+                     <div>
+                       <h4 className="font-medium mb-3 text-sm text-muted-foreground">Foundation & Base</h4>
+                       <div className="grid grid-cols-2 gap-3">
+                         {analysis.recommendations.makeup.map((colorName, index) => (
+                           <div key={index} className="p-2 bg-muted/50 rounded-lg text-center">
+                             <p className="text-sm font-medium">{colorName}</p>
+                           </div>
+                         ))}
+                       </div>
+                     </div>
 
-                    {/* Lip Colors */}
-                    <div>
-                      <h4 className="font-medium mb-2 text-sm text-muted-foreground">Lip Colors</h4>
-                      <div className="grid grid-cols-2 gap-2">
-                        {analysis.recommendations.lipColors.map((color, index) => (
-                          <ColorSwatch
-                            key={index}
-                            color={color}
-                            size="md"
-                            showHex={true}
-                          />
-                        ))}
-                      </div>
-                    </div>
+                     {/* Lip Colors */}
+                     <div>
+                       <h4 className="font-medium mb-3 text-sm text-muted-foreground">Lip Colors</h4>
+                       <div className="grid grid-cols-2 gap-3">
+                         {analysis.recommendations.lipColors.map((colorName, index) => (
+                           <div key={index} className="p-2 bg-muted/50 rounded-lg text-center">
+                             <p className="text-sm font-medium">{colorName}</p>
+                           </div>
+                         ))}
+                       </div>
+                     </div>
 
-                    {/* Eyeshadow */}
-                    <div>
-                      <h4 className="font-medium mb-2 text-sm text-muted-foreground">Eyeshadow Palette</h4>
-                      <div className="grid grid-cols-2 gap-2">
-                        {analysis.recommendations.eyeshadow.map((color, index) => (
-                          <ColorSwatch
-                            key={index}
-                            color={color}
-                            size="md"
-                            showHex={true}
-                          />
-                        ))}
-                      </div>
-                    </div>
-                  </CardContent>
+                     {/* Eyeshadow */}
+                     <div>
+                       <h4 className="font-medium mb-3 text-sm text-muted-foreground">Eyeshadow Palette</h4>
+                       <div className="grid grid-cols-2 gap-3">
+                         {analysis.recommendations.eyeshadow.map((colorName, index) => (
+                           <div key={index} className="p-2 bg-muted/50 rounded-lg text-center">
+                             <p className="text-sm font-medium">{colorName}</p>
+                           </div>
+                         ))}
+                       </div>
+                     </div>
+                   </CardContent>
                 </Card>
                 )}
               </div>
