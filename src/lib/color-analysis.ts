@@ -20,6 +20,18 @@ export interface SkinToneAnalysis {
     lipColors: string[];
     eyeshadow: string[];
   };
+  genderSpecificRecommendations?: {
+    women?: {
+      jewelry: string[];
+      handbags: string[];
+      shoes: string[];
+    };
+    men?: {
+      watches: string[];
+      shoes: string[];
+      belts: string[];
+    };
+  };
 }
 
 // Convert RGB to HSL
@@ -127,18 +139,68 @@ export function extractDominantColors(imageData: ImageData, k: number = 14): str
   return centroids.map(([r, g, b]) => rgbToHex(r, g, b));
 }
 
-// Skin tone scale (lightest to darkest)
+// Skin tone scale (lightest to darkest) with comprehensive color recommendations
 const SKIN_TONE_SCALE = [
-  { name: 'Porcelain', hex: '#f6ede4', number: 1 },
-  { name: 'Ivory', hex: '#f3e7db', number: 2 },
-  { name: 'Light Beige', hex: '#f7ead0', number: 3 },
-  { name: 'Warm Beige', hex: '#eadaba', number: 4 },
-  { name: 'Golden Beige', hex: '#d7bd96', number: 5 },
-  { name: 'Tan', hex: '#a07e56', number: 6 },
-  { name: 'Medium Brown', hex: '#825c43', number: 7 },
-  { name: 'Deep Brown', hex: '#604134', number: 8 },
-  { name: 'Dark Espresso', hex: '#3a312a', number: 9 },
-  { name: 'Ebony', hex: '#292421', number: 10 }
+  { 
+    name: 'Porcelain', 
+    hex: '#f6ede4', 
+    number: 1,
+    upperWearColors: ['Navy Blue', 'Silver Grey', 'Steel Blue', 'Soft Pink', 'Cool Lilac', 'Charcoal', 'Cool Beige', 'Icy Blue', 'Mint', 'Crisp White']
+  },
+  { 
+    name: 'Ivory', 
+    hex: '#f3e7db', 
+    number: 2,
+    upperWearColors: ['Emerald Green', 'Soft Rose', 'Sage Green', 'Sky Blue', 'Cool Peach', 'Warm Taupe', 'Off-White', 'Dusty Pink', 'Pearl', 'Light Denim']
+  },
+  { 
+    name: 'Light Beige', 
+    hex: '#f7ead0', 
+    number: 3,
+    upperWearColors: ['Coral', 'Warm Beige', 'Aqua', 'Salmon Pink', 'Soft Yellow', 'Dusty Lavender', 'Eggshell', 'Teal', 'Light Olive', 'Medium Grey']
+  },
+  { 
+    name: 'Warm Beige', 
+    hex: '#eadaba', 
+    number: 4,
+    upperWearColors: ['Mustard Yellow', 'Rust', 'Golden Brown', 'Olive Green', 'Terracotta', 'Warm Red', 'Peach', 'Soft White', 'Deep Coral', 'Tan']
+  },
+  { 
+    name: 'Golden Beige', 
+    hex: '#d7bd96', 
+    number: 5,
+    upperWearColors: ['Burnt Orange', 'Goldenrod', 'Honey', 'Chocolate', 'Coral Pink', 'Pumpkin', 'Sage', 'Warm Ivory', 'Caramel', 'Umber']
+  },
+  { 
+    name: 'Tan', 
+    hex: '#a07e56', 
+    number: 6,
+    upperWearColors: ['Forest Green', 'Burgundy', 'Marigold', 'Deep Teal', 'Ochre', 'Cinnamon', 'Sand', 'Dusty Orange', 'Chestnut', 'Warm Taupe']
+  },
+  { 
+    name: 'Medium Brown', 
+    hex: '#825c43', 
+    number: 7,
+    upperWearColors: ['Dark Chocolate', 'Bronze', 'Olive', 'Saffron', 'Emerald', 'Rust', 'Warm Burgundy', 'Warm White', 'Cinnamon', 'Camel']
+  },
+  { 
+    name: 'Deep Brown', 
+    hex: '#604134', 
+    number: 8,
+    upperWearColors: ['Eggplant', 'Ruby', 'Indigo', 'Mahogany', 'Moss Green', 'Gold', 'Classic Black', 'Rosewood', 'Jade', 'Soft Clay']
+  },
+  { 
+    name: 'Dark Espresso', 
+    hex: '#3a312a', 
+    number: 9,
+    upperWearColors: ['Plum', 'Sapphire', 'Burnished Copper', 'Mulberry', 'Charcoal', 'Olive', 'Brick Red', 'Fawn', 'Deep Teal', 'Aspen']
+  },
+  { 
+    name: 'Ebony', 
+    hex: '#292421', 
+    number: 10,
+    upperWearColors: ['True Red', 'Bright Navy', 'Cypress', 'Sapphire', 'Amethyst', 'Classic Black', 'Cool Gray', 'Emerald', 'Fuchsia', 'White']
+  }
 ];
 
 // Color name mapping for human-friendly display
@@ -238,7 +300,8 @@ export function analyzeSkinTone(dominantColors: string[]): SkinToneAnalysis {
   // Generate recommendations based on skin tone
   const recommendations = generateMakeupRecommendations(skinToneType);
   const outfitExamples = generateUpperWearExamples(skinToneType, skinToneLevel.number);
-  const upperWearColors = generateFriendlyUpperWearColors(skinToneType);
+  const upperWearColors = skinToneLevel.upperWearColors || generateFriendlyUpperWearColors(skinToneType);
+  const genderSpecificRecommendations = generateGenderSpecificRecommendations(skinToneLevel.number);
 
   return {
     dominantColors,
@@ -252,7 +315,8 @@ export function analyzeSkinTone(dominantColors: string[]): SkinToneAnalysis {
       makeup: generateFriendlyMakeupColors(skinToneType, 'makeup'),
       lipColors: generateFriendlyMakeupColors(skinToneType, 'lipColors'),
       eyeshadow: generateFriendlyMakeupColors(skinToneType, 'eyeshadow')
-    }
+    },
+    genderSpecificRecommendations
   };
 }
 
@@ -374,6 +438,133 @@ function generateUpperWearExamples(skinToneType: 'warm' | 'cool' | 'neutral', sk
   }
 
   return examples[skinToneType].slice(0, 2);
+}
+
+function generateGenderSpecificRecommendations(skinToneLevel: number) {
+  const accessoryRecommendations = {
+    1: { // Porcelain
+      women: {
+        jewelry: ['Cool-toned metals like silver, platinum, and white gold', 'Gemstones like sapphires, amethysts, and diamonds'],
+        handbags: ['Charcoal grey', 'Navy blue', 'Soft pastel pink bag'],
+        shoes: ['Silver flats', 'Crisp white sneakers', 'Navy heels']
+      },
+      men: {
+        watches: ['Stainless steel or silver-tone watch with black or navy blue leather strap'],
+        shoes: ['Black leather dress shoes', 'Charcoal grey suede loafers', 'Crisp white sneakers'],
+        belts: ['Classic black or dark charcoal leather belt']
+      }
+    },
+    2: { // Ivory
+      women: {
+        jewelry: ['Soft gold and silver both work well', 'Pearls, rose quartz, and emeralds'],
+        handbags: ['Warm taupe', 'Off-white', 'Dusty rose shade'],
+        shoes: ['Nude heels', 'Off-white loafers', 'Light grey ankle boots']
+      },
+      men: {
+        watches: ['Watch with light brown leather strap or classic stainless steel bracelet'],
+        shoes: ['Tan or light brown leather loafers', 'Off-white canvas sneakers', 'Light grey dress shoes'],
+        belts: ['Versatile tan or light brown leather belt']
+      }
+    },
+    3: { // Light Beige
+      women: {
+        jewelry: ['Rose gold and soft yellow gold', 'Jewelry with turquoise, coral, or peridot'],
+        handbags: ['Tan leather tote', 'Light olive crossbody', 'Vibrant coral clutch'],
+        shoes: ['Tan sandals', 'Eggshell-colored pumps', 'Medium grey sneakers']
+      },
+      men: {
+        watches: ['Gold-tone watch with brown leather strap or two-tone metal bracelet'],
+        shoes: ['Medium brown brogues', 'Navy suede sneakers', 'Tan leather drivers'],
+        belts: ['Medium brown leather belt to match shoes']
+      }
+    },
+    4: { // Warm Beige
+      women: {
+        jewelry: ['Yellow gold and bronze', 'Amber, citrine, and carnelian gemstones'],
+        handbags: ['Rich cognac', 'Deep olive green', 'Warm terracotta shade'],
+        shoes: ['Tan loafers', 'Chocolate brown boots', 'Peach-colored flats']
+      },
+      men: {
+        watches: ['Gold-tone or bronze-cased watch with dark brown or olive green strap'],
+        shoes: ['Rich brown leather boots', 'Tan suede desert boots', 'Olive sneakers'],
+        belts: ['Dark brown or tan leather belt']
+      }
+    },
+    5: { // Golden Beige
+      women: {
+        jewelry: ['Rich yellow gold, copper, and bronze metals', 'Tiger\'s eye, amber, and golden topaz'],
+        handbags: ['Caramel-colored satchel', 'Deep chocolate tote', 'Burnt orange clutch'],
+        shoes: ['Caramel boots', 'Warm ivory heels', 'Chocolate brown flats']
+      },
+      men: {
+        watches: ['Rich gold-tone watch with chocolate brown leather strap or gold bracelet'],
+        shoes: ['Caramel or chocolate brown leather shoes', 'Dark tan boots', 'Warm ivory sneakers'],
+        belts: ['Belt in chocolate or caramel brown']
+      }
+    },
+    6: { // Tan
+      women: {
+        jewelry: ['Antique gold, copper, and bronze', 'Garnet, turquoise, and citrine'],
+        handbags: ['Chestnut leather bags', 'Deep forest green totes', 'Ochre-colored crossbody bags'],
+        shoes: ['Chestnut boots', 'Sand-colored espadrilles', 'Burgundy heels']
+      },
+      men: {
+        watches: ['Antique gold or bronze-cased watch with rugged brown leather or canvas strap'],
+        shoes: ['Chestnut or dark brown leather boots', 'Burgundy loafers', 'Sand-colored chukkas'],
+        belts: ['Sturdy chestnut or dark brown leather belt']
+      }
+    },
+    7: { // Medium Brown
+      women: {
+        jewelry: ['Polished yellow gold and burnished bronze', 'Emerald, ruby, and topaz gemstones'],
+        handbags: ['Camel-colored handbag', 'Rich burgundy tote', 'Olive green clutch'],
+        shoes: ['Camel loafers', 'Dark chocolate ankle boots', 'Warm white sneakers']
+      },
+      men: {
+        watches: ['Bold watch with bronze case and dark brown leather strap or classic gold watch'],
+        shoes: ['Dark chocolate dress shoes', 'Camel-colored boots', 'Clean warm white leather sneakers'],
+        belts: ['High-quality belt in dark brown or camel leather']
+      }
+    },
+    8: { // Deep Brown
+      women: {
+        jewelry: ['Bright yellow gold and rose gold', 'Rubies, emeralds, and sapphires'],
+        handbags: ['Eggplant purple shoulder bag', 'Indigo tote', 'Classic black leather bag'],
+        shoes: ['Mahogany loafers', 'Classic black heels', 'Ruby-colored flats']
+      },
+      men: {
+        watches: ['Striking gold-tone watch with black or mahogany leather strap', 'Black-on-black design'],
+        shoes: ['Mahogany or black leather dress shoes', 'Deep indigo sneakers'],
+        belts: ['Classic black or rich mahogany leather belt']
+      }
+    },
+    9: { // Dark Espresso
+      women: {
+        jewelry: ['Copper and bright yellow gold', 'Amethyst, sapphire, and garnet'],
+        handbags: ['Deep plum', 'Sapphire blue', 'Rich olive green bag'],
+        shoes: ['Charcoal grey pumps', 'Deep teal flats', 'Brick red boots']
+      },
+      men: {
+        watches: ['Copper or gunmetal grey watch with dark brown or black leather strap'],
+        shoes: ['Black leather boots', 'Charcoal grey dress shoes', 'Deep olive suede loafers'],
+        belts: ['Black or dark charcoal belt for sleek look']
+      }
+    },
+    10: { // Ebony
+      women: {
+        jewelry: ['Silver and gold both look incredible', 'High-contrast gemstones like diamonds, emeralds, rubies, and sapphires'],
+        handbags: ['True red statement bag', 'Crisp white tote', 'Vibrant fuchsia clutch'],
+        shoes: ['Classic white sneakers', 'True red heels', 'Bright navy loafers']
+      },
+      men: {
+        watches: ['High-contrast silver or gold-tone watch with clean white face or bold black one'],
+        shoes: ['Classic black or sharp white leather shoes', 'Bold colored sneakers like true red'],
+        belts: ['Classic black or cool grey leather belt']
+      }
+    }
+  };
+
+  return accessoryRecommendations[skinToneLevel as keyof typeof accessoryRecommendations] || null;
 }
 
 // Detect face region in image (simplified approach)

@@ -5,14 +5,17 @@ import { ColorSwatch } from '@/components/ui/color-swatch';
 import { LoadingSpinner } from '@/components/ui/loading-spinner';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
+import { Label } from '@/components/ui/label';
 import { extractDominantColors, analyzeSkinTone, detectFaceRegion, type SkinToneAnalysis } from '@/lib/color-analysis';
-import { Palette, Sparkles, Shirt, Zap } from 'lucide-react';
+import { Palette, Sparkles, Shirt, Zap, Crown, Watch } from 'lucide-react';
 
 export const SkinToneAnalyzer: React.FC = () => {
   const [uploadedImage, setUploadedImage] = useState<string>('');
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [analysis, setAnalysis] = useState<SkinToneAnalysis | null>(null);
   const [error, setError] = useState<string>('');
+  const [gender, setGender] = useState<'women' | 'men'>('women');
 
   const processImage = useCallback(async (file: File) => {
     setIsAnalyzing(true);
@@ -212,28 +215,129 @@ export const SkinToneAnalyzer: React.FC = () => {
                 </CardContent>
               </Card>
 
-              {/* Perfect Upper Wear Colors */}
-              <div className="grid md:grid-cols-2 gap-6">
-                <Card className="shadow-card bg-gradient-card border-0">
-                  <CardHeader>
-                    <CardTitle className="flex items-center gap-2">
-                      <Shirt className="h-5 w-5 text-primary" />
-                      Perfect Upper Wear Colors
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="grid grid-cols-3 gap-3">
-                      {analysis.upperWearColors.map((color, index) => (
-                        <ColorSwatch
-                          key={index}
-                          color={color}
-                          size="lg"
-                          showHex={true}
-                        />
-                      ))}
+              {/* Gender Selection */}
+              <Card className="shadow-card bg-gradient-card border-0">
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <Crown className="h-5 w-5 text-primary" />
+                    Style Recommendations For
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <RadioGroup value={gender} onValueChange={(value: 'women' | 'men') => setGender(value)} className="flex gap-6">
+                    <div className="flex items-center space-x-2">
+                      <RadioGroupItem value="women" id="women" />
+                      <Label htmlFor="women">Women</Label>
                     </div>
-                  </CardContent>
-                </Card>
+                    <div className="flex items-center space-x-2">
+                      <RadioGroupItem value="men" id="men" />
+                      <Label htmlFor="men">Men</Label>
+                    </div>
+                  </RadioGroup>
+                </CardContent>
+              </Card>
+
+              {/* Perfect Upper Wear Colors */}
+              <Card className="shadow-card bg-gradient-card border-0">
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <Shirt className="h-5 w-5 text-primary" />
+                    Perfect Upper Wear Colors
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
+                    {analysis.upperWearColors.map((color, index) => (
+                      <div key={index} className="p-3 bg-muted/50 rounded-lg text-center">
+                        <p className="text-sm font-medium">{color}</p>
+                      </div>
+                    ))}
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* Gender-Specific Accessory Recommendations */}
+              <div className="grid md:grid-cols-2 gap-6">
+                {analysis.genderSpecificRecommendations && (
+                  <Card className="shadow-card bg-gradient-card border-0">
+                    <CardHeader>
+                      <CardTitle className="flex items-center gap-2">
+                        {gender === 'women' ? <Crown className="h-5 w-5 text-primary" /> : <Watch className="h-5 w-5 text-primary" />}
+                        Accessory Recommendations
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent className="space-y-6">
+                      {gender === 'women' && analysis.genderSpecificRecommendations.women && (
+                        <>
+                          <div>
+                            <h4 className="font-medium mb-3 text-sm text-muted-foreground">Jewelry</h4>
+                            <div className="space-y-2">
+                              {analysis.genderSpecificRecommendations.women.jewelry.map((item, index) => (
+                                <div key={index} className="p-2 bg-muted/50 rounded-lg">
+                                  <p className="text-sm">{item}</p>
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+                          <div>
+                            <h4 className="font-medium mb-3 text-sm text-muted-foreground">Handbags</h4>
+                            <div className="space-y-2">
+                              {analysis.genderSpecificRecommendations.women.handbags.map((item, index) => (
+                                <div key={index} className="p-2 bg-muted/50 rounded-lg">
+                                  <p className="text-sm">{item}</p>
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+                          <div>
+                            <h4 className="font-medium mb-3 text-sm text-muted-foreground">Shoes</h4>
+                            <div className="space-y-2">
+                              {analysis.genderSpecificRecommendations.women.shoes.map((item, index) => (
+                                <div key={index} className="p-2 bg-muted/50 rounded-lg">
+                                  <p className="text-sm">{item}</p>
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+                        </>
+                      )}
+                      {gender === 'men' && analysis.genderSpecificRecommendations.men && (
+                        <>
+                          <div>
+                            <h4 className="font-medium mb-3 text-sm text-muted-foreground">Watches</h4>
+                            <div className="space-y-2">
+                              {analysis.genderSpecificRecommendations.men.watches.map((item, index) => (
+                                <div key={index} className="p-2 bg-muted/50 rounded-lg">
+                                  <p className="text-sm">{item}</p>
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+                          <div>
+                            <h4 className="font-medium mb-3 text-sm text-muted-foreground">Shoes</h4>
+                            <div className="space-y-2">
+                              {analysis.genderSpecificRecommendations.men.shoes.map((item, index) => (
+                                <div key={index} className="p-2 bg-muted/50 rounded-lg">
+                                  <p className="text-sm">{item}</p>
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+                          <div>
+                            <h4 className="font-medium mb-3 text-sm text-muted-foreground">Belts</h4>
+                            <div className="space-y-2">
+                              {analysis.genderSpecificRecommendations.men.belts.map((item, index) => (
+                                <div key={index} className="p-2 bg-muted/50 rounded-lg">
+                                  <p className="text-sm">{item}</p>
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+                        </>
+                      )}
+                    </CardContent>
+                  </Card>
+                )}
 
                 {/* Makeup Colors - Optional */}
                 {analysis.recommendations && (
