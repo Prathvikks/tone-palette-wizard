@@ -249,7 +249,13 @@ export const SkinToneAnalyzer: React.FC = () => {
                   <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
                     {analysis.upperWearColors.map((color, index) => (
                       <div key={index} className="p-3 bg-muted/50 rounded-lg text-center">
-                        <p className="text-sm font-medium">{color}</p>
+                        <div className="flex items-center justify-center gap-2 mb-1">
+                          <div 
+                            className="w-4 h-4 rounded-full border border-gray-300" 
+                            style={{ backgroundColor: color.hex }}
+                          />
+                        </div>
+                        <p className="text-sm font-medium">{color.name}</p>
                       </div>
                     ))}
                   </div>
@@ -270,7 +276,7 @@ export const SkinToneAnalyzer: React.FC = () => {
                       {gender === 'women' && analysis.genderSpecificRecommendations.women && (
                         <>
                           <div>
-                            <h4 className="font-medium mb-3 text-sm text-muted-foreground">Jewelry</h4>
+                            <h4 className="font-medium mb-3 text-sm text-muted-foreground">💎 Jewelry</h4>
                             <div className="space-y-2">
                               {analysis.genderSpecificRecommendations.women.jewelry.map((item, index) => (
                                 <div key={index} className="p-2 bg-muted/50 rounded-lg">
@@ -280,7 +286,7 @@ export const SkinToneAnalyzer: React.FC = () => {
                             </div>
                           </div>
                           <div>
-                            <h4 className="font-medium mb-3 text-sm text-muted-foreground">Handbags</h4>
+                            <h4 className="font-medium mb-3 text-sm text-muted-foreground">👜 Handbags</h4>
                             <div className="space-y-2">
                               {analysis.genderSpecificRecommendations.women.handbags.map((item, index) => (
                                 <div key={index} className="p-2 bg-muted/50 rounded-lg">
@@ -290,7 +296,7 @@ export const SkinToneAnalyzer: React.FC = () => {
                             </div>
                           </div>
                           <div>
-                            <h4 className="font-medium mb-3 text-sm text-muted-foreground">Shoes</h4>
+                            <h4 className="font-medium mb-3 text-sm text-muted-foreground">👠 Shoes</h4>
                             <div className="space-y-2">
                               {analysis.genderSpecificRecommendations.women.shoes.map((item, index) => (
                                 <div key={index} className="p-2 bg-muted/50 rounded-lg">
@@ -304,7 +310,7 @@ export const SkinToneAnalyzer: React.FC = () => {
                       {gender === 'men' && analysis.genderSpecificRecommendations.men && (
                         <>
                           <div>
-                            <h4 className="font-medium mb-3 text-sm text-muted-foreground">Watches</h4>
+                            <h4 className="font-medium mb-3 text-sm text-muted-foreground">⌚ Watches</h4>
                             <div className="space-y-2">
                               {analysis.genderSpecificRecommendations.men.watches.map((item, index) => (
                                 <div key={index} className="p-2 bg-muted/50 rounded-lg">
@@ -314,7 +320,7 @@ export const SkinToneAnalyzer: React.FC = () => {
                             </div>
                           </div>
                           <div>
-                            <h4 className="font-medium mb-3 text-sm text-muted-foreground">Shoes</h4>
+                            <h4 className="font-medium mb-3 text-sm text-muted-foreground">👞 Shoes</h4>
                             <div className="space-y-2">
                               {analysis.genderSpecificRecommendations.men.shoes.map((item, index) => (
                                 <div key={index} className="p-2 bg-muted/50 rounded-lg">
@@ -324,7 +330,7 @@ export const SkinToneAnalyzer: React.FC = () => {
                             </div>
                           </div>
                           <div>
-                            <h4 className="font-medium mb-3 text-sm text-muted-foreground">Belts</h4>
+                            <h4 className="font-medium mb-3 text-sm text-muted-foreground">🎗️ Belts</h4>
                             <div className="space-y-2">
                               {analysis.genderSpecificRecommendations.men.belts.map((item, index) => (
                                 <div key={index} className="p-2 bg-muted/50 rounded-lg">
@@ -339,8 +345,8 @@ export const SkinToneAnalyzer: React.FC = () => {
                   </Card>
                 )}
 
-                {/* Makeup Colors - Optional */}
-                {analysis.recommendations && (
+                {/* Makeup Colors - Optional (Women only) */}
+                {analysis.recommendations && gender === 'women' && (
                   <Card className="shadow-card bg-gradient-card border-0">
                     <CardHeader>
                       <CardTitle className="flex items-center gap-2">

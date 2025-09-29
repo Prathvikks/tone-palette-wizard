@@ -14,7 +14,7 @@ export interface SkinToneAnalysis {
     colors: string[];
   }[];
   outfitExamples: string[];
-  upperWearColors: string[];
+  upperWearColors: { name: string; hex: string }[];
   recommendations?: {
     makeup: string[];
     lipColors: string[];
@@ -145,61 +145,171 @@ const SKIN_TONE_SCALE = [
     name: 'Porcelain', 
     hex: '#f6ede4', 
     number: 1,
-    upperWearColors: ['Navy Blue', 'Silver Grey', 'Steel Blue', 'Soft Pink', 'Cool Lilac', 'Charcoal', 'Cool Beige', 'Icy Blue', 'Mint', 'Crisp White']
+    upperWearColors: [
+      { name: 'Navy Blue', hex: '#000080' },
+      { name: 'Silver Grey', hex: '#C0C0C0' },
+      { name: 'Steel Blue', hex: '#4682B4' },
+      { name: 'Soft Pink', hex: '#F8BBD9' },
+      { name: 'Cool Lilac', hex: '#B19CD9' },
+      { name: 'Charcoal', hex: '#36454F' },
+      { name: 'Cool Beige', hex: '#F5F5DC' },
+      { name: 'Icy Blue', hex: '#B0E0E6' },
+      { name: 'Mint', hex: '#98FB98' },
+      { name: 'Crisp White', hex: '#FFFFFF' }
+    ]
   },
   { 
     name: 'Ivory', 
     hex: '#f3e7db', 
     number: 2,
-    upperWearColors: ['Emerald Green', 'Soft Rose', 'Sage Green', 'Sky Blue', 'Cool Peach', 'Warm Taupe', 'Off-White', 'Dusty Pink', 'Pearl', 'Light Denim']
+    upperWearColors: [
+      { name: 'Emerald Green', hex: '#50C878' },
+      { name: 'Soft Rose', hex: '#F8BBD9' },
+      { name: 'Sage Green', hex: '#9CAF88' },
+      { name: 'Sky Blue', hex: '#87CEEB' },
+      { name: 'Cool Peach', hex: '#FFCBA4' },
+      { name: 'Warm Taupe', hex: '#8B7355' },
+      { name: 'Off-White', hex: '#FAF0E6' },
+      { name: 'Dusty Pink', hex: '#D4A5A5' },
+      { name: 'Pearl', hex: '#EAE0C8' },
+      { name: 'Light Denim', hex: '#6F8FAF' }
+    ]
   },
   { 
     name: 'Light Beige', 
     hex: '#f7ead0', 
     number: 3,
-    upperWearColors: ['Coral', 'Warm Beige', 'Aqua', 'Salmon Pink', 'Soft Yellow', 'Dusty Lavender', 'Eggshell', 'Teal', 'Light Olive', 'Medium Grey']
+    upperWearColors: [
+      { name: 'Coral', hex: '#FF7F50' },
+      { name: 'Warm Beige', hex: '#F5F5DC' },
+      { name: 'Aqua', hex: '#00FFFF' },
+      { name: 'Salmon Pink', hex: '#FA8072' },
+      { name: 'Soft Yellow', hex: '#FFFFE0' },
+      { name: 'Dusty Lavender', hex: '#E6E6FA' },
+      { name: 'Eggshell', hex: '#F0EAD6' },
+      { name: 'Teal', hex: '#008080' },
+      { name: 'Light Olive', hex: '#B5B35C' },
+      { name: 'Medium Grey', hex: '#A9A9A9' }
+    ]
   },
   { 
     name: 'Warm Beige', 
     hex: '#eadaba', 
     number: 4,
-    upperWearColors: ['Mustard Yellow', 'Rust', 'Golden Brown', 'Olive Green', 'Terracotta', 'Warm Red', 'Peach', 'Soft White', 'Deep Coral', 'Tan']
+    upperWearColors: [
+      { name: 'Mustard Yellow', hex: '#FFDB58' },
+      { name: 'Rust', hex: '#B7410E' },
+      { name: 'Golden Brown', hex: '#996515' },
+      { name: 'Olive Green', hex: '#808000' },
+      { name: 'Terracotta', hex: '#E2725B' },
+      { name: 'Warm Red', hex: '#DC143C' },
+      { name: 'Peach', hex: '#FFCBA4' },
+      { name: 'Soft White', hex: '#F8F8FF' },
+      { name: 'Deep Coral', hex: '#FF6F61' },
+      { name: 'Tan', hex: '#D2B48C' }
+    ]
   },
   { 
     name: 'Golden Beige', 
     hex: '#d7bd96', 
     number: 5,
-    upperWearColors: ['Burnt Orange', 'Goldenrod', 'Honey', 'Chocolate', 'Coral Pink', 'Pumpkin', 'Sage', 'Warm Ivory', 'Caramel', 'Umber']
+    upperWearColors: [
+      { name: 'Burnt Orange', hex: '#CC5500' },
+      { name: 'Goldenrod', hex: '#DAA520' },
+      { name: 'Honey', hex: '#FFC30B' },
+      { name: 'Chocolate', hex: '#7B3F00' },
+      { name: 'Coral Pink', hex: '#F88379' },
+      { name: 'Pumpkin', hex: '#FF7518' },
+      { name: 'Sage', hex: '#87AE73' },
+      { name: 'Warm Ivory', hex: '#FDF5E6' },
+      { name: 'Caramel', hex: '#AF6F09' },
+      { name: 'Umber', hex: '#635147' }
+    ]
   },
   { 
     name: 'Tan', 
     hex: '#a07e56', 
     number: 6,
-    upperWearColors: ['Forest Green', 'Burgundy', 'Marigold', 'Deep Teal', 'Ochre', 'Cinnamon', 'Sand', 'Dusty Orange', 'Chestnut', 'Warm Taupe']
+    upperWearColors: [
+      { name: 'Forest Green', hex: '#228B22' },
+      { name: 'Burgundy', hex: '#800020' },
+      { name: 'Marigold', hex: '#EAA221' },
+      { name: 'Deep Teal', hex: '#003A5C' },
+      { name: 'Ochre', hex: '#CC7722' },
+      { name: 'Cinnamon', hex: '#D2691E' },
+      { name: 'Sand', hex: '#F4A460' },
+      { name: 'Dusty Orange', hex: '#DF9853' },
+      { name: 'Chestnut', hex: '#954535' },
+      { name: 'Warm Taupe', hex: '#CB9B8C' }
+    ]
   },
   { 
     name: 'Medium Brown', 
     hex: '#825c43', 
     number: 7,
-    upperWearColors: ['Dark Chocolate', 'Bronze', 'Olive', 'Saffron', 'Emerald', 'Rust', 'Warm Burgundy', 'Warm White', 'Cinnamon', 'Camel']
+    upperWearColors: [
+      { name: 'Dark Chocolate', hex: '#3C1810' },
+      { name: 'Bronze', hex: '#CD7F32' },
+      { name: 'Olive', hex: '#6B6B47' },
+      { name: 'Saffron', hex: '#F4C430' },
+      { name: 'Emerald', hex: '#50C878' },
+      { name: 'Rust', hex: '#B7410E' },
+      { name: 'Warm Burgundy', hex: '#722F37' },
+      { name: 'Warm White', hex: '#FEFCFF' },
+      { name: 'Cinnamon', hex: '#D2691E' },
+      { name: 'Camel', hex: '#C19A6B' }
+    ]
   },
   { 
     name: 'Deep Brown', 
     hex: '#604134', 
     number: 8,
-    upperWearColors: ['Eggplant', 'Ruby', 'Indigo', 'Mahogany', 'Moss Green', 'Gold', 'Classic Black', 'Rosewood', 'Jade', 'Soft Clay']
+    upperWearColors: [
+      { name: 'Eggplant', hex: '#614051' },
+      { name: 'Ruby', hex: '#E0115F' },
+      { name: 'Indigo', hex: '#4B0082' },
+      { name: 'Mahogany', hex: '#C04000' },
+      { name: 'Moss Green', hex: '#8A9A5B' },
+      { name: 'Gold', hex: '#FFD700' },
+      { name: 'Classic Black', hex: '#000000' },
+      { name: 'Rosewood', hex: '#65000B' },
+      { name: 'Jade', hex: '#00A86B' },
+      { name: 'Soft Clay', hex: '#BC9A6A' }
+    ]
   },
   { 
     name: 'Dark Espresso', 
     hex: '#3a312a', 
     number: 9,
-    upperWearColors: ['Plum', 'Sapphire', 'Burnished Copper', 'Mulberry', 'Charcoal', 'Olive', 'Brick Red', 'Fawn', 'Deep Teal', 'Aspen']
+    upperWearColors: [
+      { name: 'Plum', hex: '#8E4585' },
+      { name: 'Sapphire', hex: '#0F52BA' },
+      { name: 'Burnished Copper', hex: '#7A4A2A' },
+      { name: 'Mulberry', hex: '#C54B8C' },
+      { name: 'Charcoal', hex: '#36454F' },
+      { name: 'Olive', hex: '#6B6B47' },
+      { name: 'Brick Red', hex: '#CB4154' },
+      { name: 'Fawn', hex: '#E5AA70' },
+      { name: 'Deep Teal', hex: '#003A5C' },
+      { name: 'Aspen', hex: '#F8F8F8' }
+    ]
   },
   { 
     name: 'Ebony', 
     hex: '#292421', 
     number: 10,
-    upperWearColors: ['True Red', 'Bright Navy', 'Cypress', 'Sapphire', 'Amethyst', 'Classic Black', 'Cool Gray', 'Emerald', 'Fuchsia', 'White']
+    upperWearColors: [
+      { name: 'True Red', hex: '#FF0000' },
+      { name: 'Bright Navy', hex: '#191970' },
+      { name: 'Cypress', hex: '#4A5D23' },
+      { name: 'Sapphire', hex: '#0F52BA' },
+      { name: 'Amethyst', hex: '#9966CC' },
+      { name: 'Classic Black', hex: '#000000' },
+      { name: 'Cool Gray', hex: '#8C92AC' },
+      { name: 'Emerald', hex: '#50C878' },
+      { name: 'Fuchsia', hex: '#FF00FF' },
+      { name: 'White', hex: '#FFFFFF' }
+    ]
   }
 ];
 
@@ -342,19 +452,43 @@ function generateMakeupRecommendations(skinToneType: 'warm' | 'cool' | 'neutral'
   return recommendations[skinToneType];
 }
 
-function generateFriendlyUpperWearColors(skinToneType: 'warm' | 'cool' | 'neutral'): string[] {
+function generateFriendlyUpperWearColors(skinToneType: 'warm' | 'cool' | 'neutral'): { name: string; hex: string }[] {
   const upperWearColors = {
     warm: [
-      'Warm Brown', 'Terracotta', 'Camel', 'Burnt Orange', 'Mustard Yellow',
-      'Rust Red', 'Golden Beige', 'Coral Pink', 'Olive Green', 'Cream White'
+      { name: 'Warm Brown', hex: '#8B4513' },
+      { name: 'Terracotta', hex: '#E2725B' },
+      { name: 'Camel', hex: '#C19A6B' },
+      { name: 'Burnt Orange', hex: '#CC5500' },
+      { name: 'Mustard Yellow', hex: '#FFDB58' },
+      { name: 'Rust Red', hex: '#B7410E' },
+      { name: 'Golden Beige', hex: '#F5DEB3' },
+      { name: 'Coral Pink', hex: '#F88379' },
+      { name: 'Olive Green', hex: '#808000' },
+      { name: 'Cream White', hex: '#FFFDD0' }
     ],
     cool: [
-      'Navy Blue', 'Crisp White', 'Steel Blue', 'Charcoal Grey', 'Emerald Green',
-      'Royal Purple', 'Cool Pink', 'Silver Grey', 'Icy Blue', 'Deep Teal'
+      { name: 'Navy Blue', hex: '#000080' },
+      { name: 'Crisp White', hex: '#FFFFFF' },
+      { name: 'Steel Blue', hex: '#4682B4' },
+      { name: 'Charcoal Grey', hex: '#36454F' },
+      { name: 'Emerald Green', hex: '#50C878' },
+      { name: 'Royal Purple', hex: '#7851A9' },
+      { name: 'Cool Pink', hex: '#F8BBD9' },
+      { name: 'Silver Grey', hex: '#C0C0C0' },
+      { name: 'Icy Blue', hex: '#B0E0E6' },
+      { name: 'Deep Teal', hex: '#003A5C' }
     ],
     neutral: [
-      'Classic Black', 'Pure White', 'Medium Grey', 'Sage Green', 'Taupe Brown',
-      'Soft Beige', 'Dusty Rose', 'Slate Blue', 'Warm Ivory', 'Mushroom Grey'
+      { name: 'Classic Black', hex: '#000000' },
+      { name: 'Pure White', hex: '#FFFFFF' },
+      { name: 'Medium Grey', hex: '#A9A9A9' },
+      { name: 'Sage Green', hex: '#9CAF88' },
+      { name: 'Taupe Brown', hex: '#8B7355' },
+      { name: 'Soft Beige', hex: '#F5F5DC' },
+      { name: 'Dusty Rose', hex: '#D4A5A5' },
+      { name: 'Slate Blue', hex: '#6A5ACD' },
+      { name: 'Warm Ivory', hex: '#FDF5E6' },
+      { name: 'Mushroom Grey', hex: '#C7B377' }
     ]
   };
 
