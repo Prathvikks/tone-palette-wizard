@@ -1,4 +1,5 @@
 // Color analysis utilities for skin tone and recommendations
+import { pipeline } from '@huggingface/transformers';
 
 export interface SkinToneAnalysis {
   dominantColors: string[];
@@ -31,6 +32,10 @@ export interface SkinToneAnalysis {
       shoes: string[];
       belts: string[];
     };
+  };
+  genderSpecificOutfits?: {
+    women?: string[];
+    men?: string[];
   };
 }
 
@@ -412,6 +417,7 @@ export function analyzeSkinTone(dominantColors: string[]): SkinToneAnalysis {
   const outfitExamples = generateUpperWearExamples(skinToneType, skinToneLevel.number);
   const upperWearColors = skinToneLevel.upperWearColors || generateFriendlyUpperWearColors(skinToneType);
   const genderSpecificRecommendations = generateGenderSpecificRecommendations(skinToneLevel.number);
+  const genderSpecificOutfits = generateGenderSpecificOutfits(skinToneLevel.number);
 
   return {
     dominantColors,
@@ -426,7 +432,8 @@ export function analyzeSkinTone(dominantColors: string[]): SkinToneAnalysis {
       lipColors: generateFriendlyMakeupColors(skinToneType, 'lipColors'),
       eyeshadow: generateFriendlyMakeupColors(skinToneType, 'eyeshadow')
     },
-    genderSpecificRecommendations
+    genderSpecificRecommendations,
+    genderSpecificOutfits
   };
 }
 
@@ -699,6 +706,175 @@ function generateGenderSpecificRecommendations(skinToneLevel: number) {
   };
 
   return accessoryRecommendations[skinToneLevel as keyof typeof accessoryRecommendations] || null;
+}
+
+// Face detection using HuggingFace transformers
+export async function detectFaceInImage(imageElement: HTMLImageElement): Promise<boolean> {
+  try {
+    console.log('Starting face detection...');
+    
+    // Create object detection pipeline for face detection
+    const detector = await pipeline(
+      'object-detection', 
+      'Xenova/yolov8n',
+      { device: 'webgpu' }
+    );
+
+    // Convert image to canvas for processing
+    const canvas = document.createElement('canvas');
+    const ctx = canvas.getContext('2d');
+    if (!ctx) throw new Error('Could not get canvas context');
+
+    canvas.width = imageElement.naturalWidth;
+    canvas.height = imageElement.naturalHeight;
+    ctx.drawImage(imageElement, 0, 0);
+
+    // Get image data URL
+    const imageData = canvas.toDataURL('image/jpeg', 0.8);
+    
+    // Detect objects in the image
+    const results = await detector(imageData);
+    console.log('Detection results:', results);
+
+    // Check if any detected object is a person (which would indicate a human face/body)
+    const hasPerson = results.some((result: any) => 
+      result.label && result.label.toLowerCase().includes('person') && result.score > 0.3
+    );
+
+    console.log('Face/person detected:', hasPerson);
+    return hasPerson;
+  } catch (error) {
+    console.error('Face detection error:', error);
+    // Fallback to simplified face region detection if AI detection fails
+    return true; // Allow processing to continue
+  }
+}
+
+function generateGenderSpecificOutfits(skinToneLevel: number) {
+  const outfitIdeas = {
+    1: { // Porcelain
+      women: [
+        'Office Ready: Navy blazer, crisp white blouse, and charcoal trousers with silver accessories',
+        'Weekend Chic: Soft pink cashmere sweater, dark jeans, and white sneakers',
+        'Evening Look: Steel blue silk dress with silver jewelry and navy heels'
+      ],
+      men: [
+        'Business Casual: Navy button-down, charcoal chinos, and black leather loafers',
+        'Weekend Look: Cool grey sweater, dark jeans, and white sneakers',
+        'Smart Casual: Steel blue shirt, black trousers, and silver watch'
+      ]
+    },
+    2: { // Ivory
+      women: [
+        'Spring Fresh: Emerald green blouse, light denim jeans, and nude heels',
+        'Romantic Date: Dusty pink dress with pearl accessories and off-white flats',
+        'Casual Chic: Sage green cardigan, warm taupe pants, and tan sandals'
+      ],
+      men: [
+        'Smart Casual: Light blue shirt, tan chinos, and brown leather shoes',
+        'Weekend Comfort: Sage green polo, light grey jeans, and canvas sneakers',
+        'Date Night: Soft rose button-down, dark jeans, and brown loafers'
+      ]
+    },
+    3: { // Light Beige
+      women: [
+        'Summer Bright: Coral blouse, white wide-leg pants, and tan leather sandals',
+        'Office Comfort: Soft yellow cardigan, medium grey trousers, and nude pumps',
+        'Brunch Ready: Teal top, light olive pants, and coral clutch bag'
+      ],
+      men: [
+        'Casual Friday: Coral polo shirt, navy chinos, and brown boat shoes',
+        'Weekend Explorer: Light olive button-down, khaki shorts, and tan sneakers',
+        'Smart Casual: Aqua shirt, medium grey trousers, and brown belt'
+      ]
+    },
+    4: { // Warm Beige
+      women: [
+        'Autumn Inspired: Rust-colored sweater, dark denim, and tan boots',
+        'Work Confident: Terracotta blazer, black trousers, and gold accessories',
+        'Date Night: Peach silk blouse, olive green pants, and bronze jewelry'
+      ],
+      men: [
+        'Fall Fashion: Mustard yellow sweater, dark brown chinos, and leather boots',
+        'Business Meeting: Olive green shirt, charcoal suit, and gold watch',
+        'Weekend Style: Rust polo, tan shorts, and brown leather sneakers'
+      ]
+    },
+    5: { // Golden Beige
+      women: [
+        'Golden Hour: Honey-colored blouse, chocolate brown pants, and caramel boots',
+        'Festival Ready: Burnt orange top, sage green skirt, and copper jewelry',
+        'Professional: Caramel blazer, warm ivory shirt, and gold accessories'
+      ],
+      men: [
+        'Sophisticated: Chocolate brown sweater, caramel chinos, and gold watch',
+        'Casual Cool: Burnt orange polo, dark tan shorts, and brown sneakers',
+        'Date Ready: Honey-colored shirt, chocolate pants, and bronze belt'
+      ]
+    },
+    6: { // Tan
+      women: [
+        'Earthy Elegant: Forest green dress, chestnut boots, and gold jewelry',
+        'Boho Chic: Marigold blouse, sand-colored pants, and turquoise accessories',
+        'Office Power: Burgundy blazer, warm taupe trousers, and bronze bag'
+      ],
+      men: [
+        'Rugged Style: Forest green flannel, dark brown jeans, and chestnut boots',
+        'Smart Casual: Burgundy sweater, sand chinos, and brown leather belt',
+        'Weekend Adventure: Ochre polo, dark tan cargo pants, and hiking boots'
+      ]
+    },
+    7: { // Medium Brown
+      women: [
+        'Rich & Warm: Emerald green silk blouse, camel trousers, and gold jewelry',
+        'Autumn Luxe: Warm burgundy dress, dark chocolate boots, and bronze bag',
+        'Professional Chic: Saffron blazer, warm white pants, and topaz accessories'
+      ],
+      men: [
+        'Executive Style: Dark chocolate suit, warm white shirt, and gold watch',
+        'Casual Refined: Bronze sweater, camel chinos, and brown leather shoes',
+        'Weekend Smart: Emerald polo, dark brown pants, and gold belt buckle'
+      ]
+    },
+    8: { // Deep Brown
+      women: [
+        'Regal Style: Ruby red dress, black heels, and gold statement jewelry',
+        'Modern Classic: Eggplant blouse, mahogany pants, and rose gold accessories',
+        'Evening Glam: Indigo silk top, black trousers, and sapphire jewelry'
+      ],
+      men: [
+        'Power Dressing: Classic black suit, white shirt, and gold watch',
+        'Smart Evening: Ruby red shirt, black trousers, and mahogany leather shoes',
+        'Refined Casual: Indigo sweater, dark chinos, and black leather belt'
+      ]
+    },
+    9: { // Dark Espresso
+      women: [
+        'Bold & Beautiful: Sapphire blue dress, charcoal heels, and copper jewelry',
+        'Statement Style: Plum blouse, black pants, and gold accessories',
+        'Elegant Edge: Deep teal top, brick red pants, and silver jewelry'
+      ],
+      men: [
+        'Distinguished: Sapphire blue suit, white shirt, and copper watch',
+        'Modern Classic: Charcoal sweater, black jeans, and gunmetal accessories',
+        'Weekend Sharp: Plum polo, dark olive pants, and black leather shoes'
+      ]
+    },
+    10: { // Ebony
+      women: [
+        'Show Stopper: True red dress, white heels, and diamond jewelry',
+        'High Contrast: Bright navy blouse, white pants, and gold accessories',
+        'Bold Statement: Fuchsia top, black trousers, and silver jewelry'
+      ],
+      men: [
+        'Classic Power: True red shirt, black suit, and silver watch',
+        'Sharp Style: Bright navy sweater, white jeans, and gold accessories',
+        'Modern Edge: White button-down, black pants, and statement watch'
+      ]
+    }
+  };
+
+  return outfitIdeas[skinToneLevel as keyof typeof outfitIdeas] || { women: [], men: [] };
 }
 
 // Detect face region in image (simplified approach)

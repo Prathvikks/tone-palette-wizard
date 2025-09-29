@@ -7,7 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Label } from '@/components/ui/label';
-import { extractDominantColors, analyzeSkinTone, detectFaceRegion, type SkinToneAnalysis } from '@/lib/color-analysis';
+import { extractDominantColors, analyzeSkinTone, detectFaceRegion, detectFaceInImage, type SkinToneAnalysis } from '@/lib/color-analysis';
 import { Palette, Sparkles, Shirt, Zap, Crown, Watch } from 'lucide-react';
 
 export const SkinToneAnalyzer: React.FC = () => {
@@ -46,6 +46,13 @@ export const SkinToneAnalyzer: React.FC = () => {
       canvas.width = img.width;
       canvas.height = img.height;
       ctx.drawImage(img, 0, 0);
+
+      // First, detect if there's a human face in the image
+      const faceDetected = await detectFaceInImage(img);
+      
+      if (!faceDetected) {
+        throw new Error('Upload failed. Please provide an image with a clear human face.');
+      }
 
       // Detect face region (simplified - using center portion)
       const faceImageData = detectFaceRegion(canvas);
@@ -196,7 +203,7 @@ export const SkinToneAnalyzer: React.FC = () => {
               </Card>
 
 
-              {/* Outfit Examples */}
+              {/* Gender-Specific Outfit Examples */}
               <Card className="shadow-card bg-gradient-card border-0">
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2">
@@ -206,7 +213,12 @@ export const SkinToneAnalyzer: React.FC = () => {
                 </CardHeader>
                 <CardContent>
                   <div className="space-y-3">
-                    {analysis.outfitExamples.map((example, index) => (
+                    {analysis.genderSpecificOutfits && gender === 'women' && analysis.genderSpecificOutfits.women?.map((example, index) => (
+                      <div key={index} className="p-4 bg-muted/50 rounded-lg">
+                        <p className="text-foreground font-medium">{example}</p>
+                      </div>
+                    ))}
+                    {analysis.genderSpecificOutfits && gender === 'men' && analysis.genderSpecificOutfits.men?.map((example, index) => (
                       <div key={index} className="p-4 bg-muted/50 rounded-lg">
                         <p className="text-foreground font-medium">{example}</p>
                       </div>
